@@ -5,13 +5,13 @@ import (
 )
 
 type Action struct {
-	Type             string          `json:"type"`
-	SignatureChainId string          `json:"signatureChainId"`
-	HyperliquidChain string          `json:"hyperliquidChain"`
-	Destination      string          `json:"destination"`
-	Token            string          `json:"token"`
-	Amount           decimal.Decimal `json:"amount"`
-	Time             int64           `json:"time"`
+	Type             string `json:"type"`
+	SignatureChainId string `json:"signatureChainId"`
+	HyperliquidChain string `json:"hyperliquidChain"`
+	Destination      string `json:"destination"`
+	Token            string `json:"token"`
+	Amount           string `json:"amount"`
+	Time             int64  `json:"time"`
 }
 
 type Transfer struct {

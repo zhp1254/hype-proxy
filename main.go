@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"hype-proxy/db"
 	"hype-proxy/httpserver/routers"
 	"hype-proxy/hype"
@@ -78,12 +79,13 @@ func processBlock(row *client.BlockHeader) {
 		}
 		// 交易入库
 		fmt.Println("begin process transfer tx", tx.TxHash)
+		amount, _ := decimal.NewFromString(tx.Action.Amount)
 		err := db.AddTx(&db.Tx{
 			BlockNo:          tx.BlockNumber,
 			BlockTime:        tx.Time,
 			BlockHash:        row.Hash,
 			TxHash:           tx.TxHash,
-			Amount:           tx.Action.Amount,
+			Amount:           amount,
 			AddressFrom:      tx.User,
 			Destination:      tx.Action.Destination,
 			Token:            tx.Action.Token,
@@ -169,14 +171,20 @@ func runSyncBlockTxs() {
 						fmt.Println(row.TxHash, " block number err")
 						continue
 					}
+
+					amount, err := decimal.NewFromString(row.Action.Amount)
+					if err != nil {
+						continue
+					}
+
 					// 交易入库
 					fmt.Println("begin process transfer tx", row.TxHash)
-					err := db.AddTx(&db.Tx{
+					err = db.AddTx(&db.Tx{
 						BlockNo:          row.BlockNumber,
 						BlockTime:        row.Time,
 						BlockHash:        "",
 						TxHash:           row.TxHash,
-						Amount:           row.Action.Amount,
+						Amount:           amount,
 						AddressFrom:      row.User,
 						Destination:      row.Action.Destination,
 						Token:            row.Action.Token,

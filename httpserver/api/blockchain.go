@@ -63,7 +63,7 @@ func GetBlock(c *gin.Context) {
 				HyperliquidChain: row.HyperLiquidChain,
 				Destination:      row.Destination,
 				Token:            row.Token,
-				Amount:           row.Amount,
+				Amount:           row.Amount.String(),
 				Time:             row.BlockTime,
 			},
 		})
