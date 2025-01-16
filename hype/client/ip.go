@@ -8,6 +8,18 @@ import (
 	"time"
 )
 
+func removeDuplicateElement(languages []string) []string {
+	result := make([]string, 0, len(languages))
+	temp := map[string]struct{}{}
+	for _, item := range languages {
+		if _, ok := temp[item]; !ok {
+			temp[item] = struct{}{}
+			result = append(result, item)
+		}
+	}
+	return result
+}
+
 func getZdayIp() []string {
 	url := "/free"
 	cli := NewClient("https://www.zdaye.com", 10)
@@ -91,5 +103,5 @@ func GetKuaidailiIp() []string {
 			}
 		}
 	}
- 	return ips
+ 	return removeDuplicateElement(ips)
 }
