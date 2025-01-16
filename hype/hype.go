@@ -26,7 +26,6 @@ func Init(_wsUrl, rpcUrl string) {
 	fmt.Println("rpc url :", rpcUrl)
 	wsUrl = _wsUrl
 	rpcClient = rpc.NewClient(rpcUrl, 10)
-	proxyIpList = rpc.GetKuaidailiIp()
 	go func() {
 		for {
 			func() {
