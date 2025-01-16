@@ -18,7 +18,7 @@ func Init(_wsUrl, rpcUrl string) {
 	fmt.Println("ws url :", _wsUrl)
 	fmt.Println("rpc url :", rpcUrl)
 	wsUrl = _wsUrl
-	rpcClient = rpc.NewClient(rpcUrl, 30)
+	rpcClient = rpc.NewClient(rpcUrl, 10)
 }
 
 func GetHttpClient() *rpc.CustomClient {
@@ -52,6 +52,7 @@ func SyncBlockTransfer(handle RollTransferHandle) {
 			continue
 		}
 
+		//fmt.Println(string(resp))
 		var ret []*rpc.Transfer
 		err := json.Unmarshal([]byte(resp), &ret)
 		if err != nil {

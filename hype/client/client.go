@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type HypeClient CustomClient
@@ -128,6 +129,9 @@ func (c *HypeClient) GetBlock(number uint64) (*Block, error) {
 	}
 
 	if httpCode != http.StatusOK && httpCode != http.StatusAccepted {
+		if httpCode == 429 {
+			time.Sleep(3 * time.Second)
+		}
 		return nil, fmt.Errorf("http status error:%+v, %+v", httpCode, string(body))
 	}
 
