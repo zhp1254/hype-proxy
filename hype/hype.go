@@ -25,7 +25,7 @@ func Init(_wsUrl, rpcUrl string) {
 	fmt.Println("ws url :", _wsUrl)
 	fmt.Println("rpc url :", rpcUrl)
 	wsUrl = _wsUrl
-	rpcClient = rpc.NewClient(rpcUrl, 10)
+	rpcClient = rpc.NewClient(rpcUrl, 20)
 	go func() {
 		for {
 			func() {
@@ -38,7 +38,7 @@ func Init(_wsUrl, rpcUrl string) {
 				proxyClient := make([]*rpc.HypeClient, 0)
 
 				Par(15, proxyIpList, func(ip string) {
-					cli := rpc.NewProxyClient(rpcUrl, ip, 10)
+					cli := rpc.NewProxyClient(rpcUrl, ip, 20)
 					if cli.Check() {
 						fmt.Println(ip, " available: ")
 						proxyClient = append(proxyClient, cli)
