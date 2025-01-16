@@ -52,14 +52,16 @@ func init() {
 }
 
 func processBlock(row *client.BlockHeader) {
-	if err := recover(); err != nil {
-		logger.Errorf("processBlock recover %+v", err)
-	}
-
 	if row.NumTxs <= 0 {
 		return
 	}
 
+	defer func() {
+		if err := recover(); err != nil {
+			logger.Errorf("processBlock recover %+v", err)
+		}
+		db.SetBestHeight(row.Height)
+	}()
 
 	var cli *client.HypeClient
 	var cliIndex int
@@ -133,19 +135,13 @@ func runSyncBlock() {
 					logger.Errorf("runSyncBlock recover %+v", err)
 				}
 			}()
-			maxNum := int64(0)
 			hype.SyncBlockHeader(func(block []*client.BlockHeader) bool {
-				for i, row := range block {
+				for i, _ := range block {
 					//fmt.Println(row.BlockNumber, row.TxHash)
 					//fmt.Println(row.User, row.Time)
-					if maxNum < row.Height {
-						maxNum = row.Height
-					} else {
-						fmt.Println("sync error blockNum: ", row.Height)
-					}
 					processChain <- block[i]
 				}
-				db.SetBestHeight(maxNum)
+				//db.SetBestHeight(maxNum)
 				//fmt.Println("sync last block no:", maxNum)
 				return true
 			})
