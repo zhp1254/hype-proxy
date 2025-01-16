@@ -77,7 +77,7 @@ func GetProxyClient() (int, *rpc.HypeClient) {
 	if proxyIndex >= len(hypeClient) {
 		proxyIndex = 0
 	}
-	return proxyIndex, hypeClient[0]
+	return proxyIndex, hypeClient[proxyIndex]
 }
 
 func RemoveProxyClient(index int) {

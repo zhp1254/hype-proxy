@@ -17,7 +17,7 @@ import (
 var (
 	version      = "1.0.0"
 	help         = flag.Bool("h", false, "show help")
-	thread       = flag.Int("t", 8, "thread number")
+	thread       = flag.Int("t", 12, "thread number")
 	ogmiosIp     = flag.String("ws", "wss://api-ui.hyperliquid.xyz/ws", "hype ws server ip")
 	rpcIp        = flag.String("rpc", "https://api-ui.hyperliquid.xyz", "hype rpc server ip")
 	httpServer   = flag.String("listen", "0.0.0.0:9009", "http rpc")
