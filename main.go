@@ -76,9 +76,9 @@ func processBlock(row *client.BlockHeader) {
 
 	block, err := cli.GetBlock(uint64(row.Height))
 	if err != nil {
-		if !strings.Contains(err.Error(), "429") {
+		/*if !strings.Contains(err.Error(), "429") {
 			hype.RemoveProxyClient(cliIndex)
-		}
+		}*/
 
 		fmt.Println(row.Height, " err: ", err)
 		return

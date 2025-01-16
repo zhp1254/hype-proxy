@@ -10,7 +10,8 @@ func Init() *gin.Engine {
 	// 修改模式
 	gin.SetMode(gin.ReleaseMode)
 	// 创建路由
-	engine := gin.Default()
+	engine := gin.New()
+	engine.Use(gin.Recovery())
 	// 404默认值
 	engine.NoRoute(NoResponse)
 	// MiddleWare中间件-解决跨域
