@@ -64,9 +64,9 @@ func processBlock(row *client.BlockHeader) {
 	}()
 
 	var cli *client.HypeClient
-	//var cliIndex int
+	var cliIndex int
 	for {
-		_, cli = hype.GetProxyClient()
+		cliIndex, cli = hype.GetProxyClient()
 		if cli != nil {
 			break
 		}
@@ -76,14 +76,16 @@ func processBlock(row *client.BlockHeader) {
 
 	block, err := cli.GetBlock(uint64(row.Height))
 	if err != nil {
-		/*if !strings.Contains(err.Error(), "429") {
+		if strings.Contains(err.Error(), "connection refused") ||
+			strings.Contains(err.Error(), "Bad request") {
 			hype.RemoveProxyClient(cliIndex)
-		}*/
+		}
 
 		fmt.Println(row.Height, " err: ", err)
 		return
 	}
 
+	// fmt.Println("==================> success: ", row.Height)
 	for _, tx := range block.BlockDetails.Txs {
 		//fmt.Println(tx.Action.Type, "======>", tx.TxHash, tx.BlockNumber)
 		if tx.Action.Type != "SpotSend" && tx.Action.Type != "UsdSend" {
