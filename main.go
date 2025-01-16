@@ -86,7 +86,7 @@ func processBlock(row *client.BlockHeader) {
 		return
 	}
 
-	// fmt.Println("==================> success: ", row.Height)
+	fmt.Println("==================> success: ", row.Height)
 	for _, tx := range block.BlockDetails.Txs {
 		//fmt.Println(tx.Action.Type, "======>", tx.TxHash, tx.BlockNumber)
 		if tx.Action.Type != "SpotSend" && tx.Action.Type != "UsdSend" {
