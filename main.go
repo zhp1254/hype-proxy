@@ -78,6 +78,8 @@ func processBlock(row *client.BlockHeader) {
 	if err != nil {
 		if strings.Contains(err.Error(), "connection refused") ||
 			strings.Contains(err.Error(), "connection reset by peer") ||
+			strings.Contains(err.Error(), "Client.Timeout") ||
+			strings.Contains(err.Error(), "405") ||
 			strings.Contains(err.Error(), "Bad request") {
 			hype.RemoveProxyClient(cliIndex)
 		}
