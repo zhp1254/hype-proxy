@@ -64,9 +64,9 @@ func processBlock(row *client.BlockHeader) {
 	}()
 
 	var cli *client.HypeClient
-	var cliIndex int
+	//var cliIndex int
 	for {
-		cliIndex, cli = hype.GetProxyClient()
+		_, cli = hype.GetProxyClient()
 		if cli != nil {
 			break
 		}
