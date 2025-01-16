@@ -6,12 +6,19 @@ import (
 	rpc "hype-proxy/hype/client"
 	"hype-proxy/logger"
 	"hype-proxy/ws"
+	"reflect"
 	"strings"
+	"sync"
+	"time"
 )
 
 var (
-	wsUrl     string
-	rpcClient rpc.CustomClient
+	wsUrl       string
+	rpcClient   rpc.CustomClient
+	hypeClient  []*rpc.HypeClient
+	proxyIpList []string
+	proxyLock   sync.RWMutex
+	proxyIndex  int
 )
 
 func Init(_wsUrl, rpcUrl string) {
@@ -19,10 +26,66 @@ func Init(_wsUrl, rpcUrl string) {
 	fmt.Println("rpc url :", rpcUrl)
 	wsUrl = _wsUrl
 	rpcClient = rpc.NewClient(rpcUrl, 10)
+	proxyIpList = rpc.GetKuaidailiIp()
+	go func() {
+		for {
+			func() {
+				defer func() {
+					if err := recover(); err != nil {
+						fmt.Println(err)
+					}
+				}()
+				proxyIpList = rpc.GetKuaidailiIp()
+				proxyClient := make([]*rpc.HypeClient, 0)
+
+				Par(15, proxyIpList, func(ip string) {
+					cli := rpc.NewProxyClient(rpcUrl, ip, 10)
+					if cli.Check() {
+						fmt.Println(ip, " available: ")
+						proxyClient = append(proxyClient, cli)
+						return
+					}
+					//fmt.Println(ip, " not available: ")
+				})
+
+				if len(proxyClient) == 0 {
+					return
+				}
+				proxyLock.Lock()
+				defer proxyLock.Unlock()
+				hypeClient = proxyClient
+			}()
+			time.Sleep(time.Minute * 3)
+		}
+	}()
+
+	//hypeClient = make([]*rpc.HypeClient, 0)
+	//hypeClient = append(hypeClient, rpc.NewProxyClient(rpcUrl, "", 10))
 }
 
 func GetHttpClient() *rpc.CustomClient {
 	return &rpcClient
+}
+
+func GetProxyClient() (int, *rpc.HypeClient) {
+	if len(hypeClient) == 0 {
+		return 0, nil
+	}
+
+	proxyLock.RLock()
+	defer proxyLock.RUnlock()
+	proxyIndex += 1
+	if proxyIndex >= len(hypeClient) {
+		proxyIndex = 0
+	}
+	return proxyIndex, hypeClient[0]
+}
+
+func RemoveProxyClient(index int) {
+	proxyLock.Lock()
+	defer proxyLock.Unlock()
+	hypeClient[index] = hypeClient[len(hypeClient)-1]
+	hypeClient = hypeClient[:len(hypeClient)-1]
 }
 
 func SyncBlockHeader(handle RollForwardHandle) {
@@ -62,4 +125,29 @@ func SyncBlockTransfer(handle RollTransferHandle) {
 		}
 		handle(ret)
 	}
+}
+
+func Par(concurrency int, arr interface{}, f interface{}) {
+	throttle := make(chan struct{}, concurrency)
+	var wg sync.WaitGroup
+
+	varr := reflect.ValueOf(arr)
+	l := varr.Len()
+
+	rf := reflect.ValueOf(f)
+
+	wg.Add(l)
+	for i := 0; i < l; i++ {
+		throttle <- struct{}{}
+
+		go func(i int) {
+			defer wg.Done()
+			defer func() {
+				<-throttle
+			}()
+			rf.Call([]reflect.Value{varr.Index(i)})
+		}(i)
+	}
+
+	wg.Wait()
 }

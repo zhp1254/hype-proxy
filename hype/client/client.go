@@ -13,6 +13,14 @@ type HypeClient CustomClient
 
 const SUCCESS = "ok"
 
+func (c *HypeClient) Check() bool {
+	httpCode, _, err := CustomClient(*c).Request(GET, "/explorer", "", nil)
+	if err != nil {
+		return false
+	}
+	return httpCode == 405
+}
+
 func (c *HypeClient) GetTransactionByTxid(txid string) (*TxDetails, error) {
 	if len(txid) == 0 {
 		return nil, errors.New("txid is empty")

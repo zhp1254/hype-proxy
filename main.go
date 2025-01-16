@@ -17,12 +17,11 @@ import (
 var (
 	version      = "1.0.0"
 	help         = flag.Bool("h", false, "show help")
-	thread       = flag.Int("t", 2, "thread number")
+	thread       = flag.Int("t", 8, "thread number")
 	ogmiosIp     = flag.String("ws", "wss://api-ui.hyperliquid.xyz/ws", "hype ws server ip")
 	rpcIp        = flag.String("rpc", "https://api-ui.hyperliquid.xyz", "hype rpc server ip")
 	httpServer   = flag.String("listen", "0.0.0.0:9009", "http rpc")
 	processChain chan *client.BlockHeader
-	cli          client.HypeClient
 )
 
 func init() {
@@ -61,8 +60,24 @@ func processBlock(row *client.BlockHeader) {
 		return
 	}
 
+
+	var cli *client.HypeClient
+	var cliIndex int
+	for {
+		cliIndex, cli = hype.GetProxyClient()
+		if cli != nil {
+			break
+		}
+		fmt.Println("wait for hype client init")
+		time.Sleep(20 * time.Second)
+	}
+
 	block, err := cli.GetBlock(uint64(row.Height))
 	if err != nil {
+		if !strings.Contains(err.Error(), "429") {
+			hype.RemoveProxyClient(cliIndex)
+		}
+
 		fmt.Println(row.Height, " err: ", err)
 		return
 	}
@@ -102,8 +117,6 @@ func processBlock(row *client.BlockHeader) {
 }
 
 func runSyncBlock() {
-	cli = client.HypeClient(*(hype.GetHttpClient()))
-
 	for i := 0; i < *thread; i++ {
 		go func(id int) {
 			for row := range processChain {

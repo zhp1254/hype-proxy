@@ -1,10 +1,12 @@
 package client
 
 import (
+	"crypto/tls"
 	"fmt"
 	"hype-proxy/logger"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -34,6 +36,28 @@ func NewClient(domain string, timeout int) CustomClient {
 		Domain: domain,
 		client: client,
 	}
+}
+
+func NewProxyClient(domain, proxyUrl string, timeout int) *HypeClient {
+	client := http.DefaultClient
+	if len(proxyUrl) > 0 {
+		proxy, _ := url.Parse(proxyUrl)
+		tr := &http.Transport{
+			Proxy:           http.ProxyURL(proxy),
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+
+		client = &http.Client{
+			Transport: tr,
+		}
+	}
+
+	client.Timeout = time.Second * time.Duration(timeout)
+	cli := HypeClient(CustomClient{
+		Domain: domain,
+		client: client,
+	})
+	return &cli
 }
 
 func JsonHeader() map[string]string {
@@ -67,7 +91,7 @@ func (c CustomClient) Request(
 
 	resp, err := c.client.Do(req)
 	if err != nil {
-		logger.Errorf("client.Do err:%+v", err)
+		//logger.Errorf("client.Do err:%+v", err)
 		return 0, nil, err
 	}
 

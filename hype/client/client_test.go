@@ -10,6 +10,7 @@ func TestGetTx(t *testing.T) {
 	txid := "0xac00cc86004d2d7325b50419e6f2ca018200f85e736f625243e1bea81123620c"
 	cli := HypeClient(NewClient("https://api-ui.hyperliquid.xyz", 60))
 	fmt.Println(cli.GetTransactionByTxid(txid))
+	fmt.Println(cli.Check())
 }
 
 func TestGetBlock(t *testing.T) {
