@@ -84,8 +84,14 @@ func GetProxyClient() (int, *rpc.HypeClient) {
 func RemoveProxyClient(index int) {
 	proxyLock.Lock()
 	defer proxyLock.Unlock()
-	hypeClient[index] = hypeClient[len(hypeClient)-1]
-	hypeClient = hypeClient[:len(hypeClient)-1]
+
+	l := len(hypeClient)-1
+	if index > l {
+		return
+	}
+
+	hypeClient[index] = hypeClient[l]
+	hypeClient = hypeClient[:l]
 }
 
 func SyncBlockHeader(handle RollForwardHandle) {
