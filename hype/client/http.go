@@ -103,7 +103,14 @@ func (c CustomClient) Request(
 	}
 
 	if resp.StatusCode != 200 {
-		logger.Infof("resp.StatusCode is:%+v, res.Body is:%+v", resp.StatusCode, string(bodyData))
+		if tr, ok := c.client.Transport.(*http.Transport); ok && tr.Proxy != nil {
+			pUrl, _ := tr.Proxy(nil)
+			logger.Infof("resp.StatusCode is:%+v, res.Body is:%+v, proxy:%+v",
+				resp.StatusCode, string(bodyData), pUrl)
+		} else {
+			logger.Infof("resp.StatusCode is:%+v, res.Body is:%+v",
+				resp.StatusCode, string(bodyData))
+		}
 	}
 	return resp.StatusCode, bodyData, nil
 }
