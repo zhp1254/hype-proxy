@@ -39,12 +39,11 @@ func Init(_wsUrl, rpcUrl string) {
 
 				Par(15, proxyIpList, func(ip string) {
 					cli := rpc.NewProxyClient(rpcUrl, ip, 20)
-					/*if cli.Check() {
+					if cli.Check() {
 						fmt.Println(ip, " available: ")
 						proxyClient = append(proxyClient, cli)
 						return
-					}*/
-					proxyClient = append(proxyClient, cli)
+					}
 					//fmt.Println(ip, " not available: ")
 				})
 
